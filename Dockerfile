@@ -47,13 +47,14 @@ RUN apt-get update && apt-get install -y \
     openssl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy package files and install production dependencies
-COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile --production
+# Copy package.json for runtime
+COPY package.json ./
 
-# Copy prisma schema and regenerate client for production
+# Copy node_modules from builder (includes compiled native modules)
+COPY --from=builder /app/node_modules ./node_modules
+
+# Copy prisma schema
 COPY prisma ./prisma
-RUN bunx prisma generate
 
 # Copy built application from builder
 COPY --from=builder /app/build ./build
