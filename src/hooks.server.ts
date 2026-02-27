@@ -1,4 +1,5 @@
 import type { Handle } from '@sveltejs/kit';
+import { building } from '$app/environment';
 import { randomUUID } from 'crypto';
 import { locale } from 'svelte-i18n';
 
@@ -40,8 +41,11 @@ async function updateInternationalPrices() {
 	}
 }
 
-console.log('Starting international price updater');
-void updateInternationalPrices();
+// Only run at runtime, not during build
+if (!building) {
+	console.log('Starting international price updater');
+	void updateInternationalPrices();
+}
 
 export const handle = (async ({ event, resolve }) => {
 	const lang =

@@ -1,5 +1,6 @@
 import { type Cookies, redirect } from '@sveltejs/kit';
 import invariant from 'tiny-invariant';
+import { building } from '$app/environment';
 
 import { AccountType, isAccountType } from '$lib/accounts';
 import { prisma } from '$lib/server/prisma';
@@ -102,11 +103,14 @@ async function clean() {
 	}
 }
 
-void clean();
-
-setInterval(() => {
+// Only run cleanup at runtime, not during build
+if (!building) {
 	void clean();
-}, cleanInterval);
+
+	setInterval(() => {
+		void clean();
+	}, cleanInterval);
+}
 
 export function requireLogin(
 	locals: App.Locals,

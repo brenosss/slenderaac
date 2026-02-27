@@ -1,11 +1,12 @@
-import {
-	Canvas,
-	CanvasRenderingContext2D,
-	createCanvas,
-	loadImage,
-} from 'canvas';
+import type { Canvas, CanvasRenderingContext2D } from 'canvas';
 import fs from 'fs';
 import path from 'path';
+
+// Dynamic import to avoid loading native module during build
+const getCanvas = async () => {
+	const canvas = await import('canvas');
+	return canvas;
+};
 
 import { mounts, outfitColors } from '$lib/server/animations/config';
 
@@ -108,6 +109,7 @@ export async function outfit(
 		return null;
 	}
 
+	const { createCanvas, loadImage } = await getCanvas();
 	const imageOutfit = await loadImage(outfitImagePath);
 
 	const width = imageOutfit.width;
