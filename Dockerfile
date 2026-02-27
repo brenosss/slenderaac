@@ -101,7 +101,9 @@ COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
 # Copy prisma schema and generate client
+# Note: DATABASE_URL is only needed at runtime, but Prisma validates it exists during generate
 COPY prisma ./prisma
+ENV DATABASE_URL="mysql://placeholder:placeholder@localhost:3306/placeholder"
 RUN bunx prisma generate
 
 # Copy source code
