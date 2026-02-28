@@ -1,4 +1,6 @@
+import * as Sentry from '@sentry/sveltekit';
 import type { Handle } from '@sveltejs/kit';
+import { sequence } from '@sveltejs/kit/hooks';
 import { building } from '$app/environment';
 import { randomUUID } from 'crypto';
 import { locale } from 'svelte-i18n';
@@ -6,6 +8,13 @@ import { locale } from 'svelte-i18n';
 import { AccountType, isAccountType } from '$lib/accounts';
 import { prisma } from '$lib/server/prisma';
 import { getSession, requireLogin } from '$lib/server/session';
+
+if (!building && process.env.PUBLIC_SENTRY_DSN) {
+	Sentry.init({
+		dsn: process.env.PUBLIC_SENTRY_DSN,
+		tracesSampleRate: 1.0,
+	});
+}
 
 const unauthorized = new Response(null, {
 	status: 401,
@@ -47,7 +56,7 @@ if (!building) {
 	void updateInternationalPrices();
 }
 
-export const handle = (async ({ event, resolve }) => {
+const slenderHandle = (async ({ event, resolve }) => {
 	const lang =
 		event.request.headers.get('accept-language')?.split(',')[0] || 'en';
 	if (lang) {
@@ -83,3 +92,6 @@ export const handle = (async ({ event, resolve }) => {
 	const response = await resolve(event);
 	return response;
 }) satisfies Handle;
+
+export const handle = sequence(Sentry.sentryHandle(), slenderHandle);
+export const handleError = Sentry.handleErrorWithSentry();

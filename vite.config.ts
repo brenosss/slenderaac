@@ -1,8 +1,9 @@
+import { sentrySvelteKit } from '@sentry/sveltekit';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig, type PluginOption } from 'vite';
 
 export default defineConfig({
-	plugins: [sveltekit() as PluginOption],
+	plugins: [sentrySvelteKit() as PluginOption, sveltekit() as PluginOption],
 	optimizeDeps: {
 		exclude: [
 			'codemirror',
