@@ -13,6 +13,8 @@ if (!building && process.env.PUBLIC_SENTRY_DSN) {
 	Sentry.init({
 		dsn: process.env.PUBLIC_SENTRY_DSN,
 		tracesSampleRate: 1.0,
+		integrations: (defaults) =>
+			defaults.filter((i) => i.name !== 'SystemError'),
 	});
 }
 

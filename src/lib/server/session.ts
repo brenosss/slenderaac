@@ -36,7 +36,7 @@ export async function createSession(
 	const session = await prisma.accountSessions.create({
 		data: {
 			account_id: account.id,
-			expires: expiresAt,
+			expires: BigInt(expiresAt),
 		},
 	});
 	sessionStore.set(session.id, {
@@ -93,7 +93,7 @@ export async function getSession(sid: Sid): Promise<SessionInfo | undefined> {
 const cleanInterval = 1000 * 60 * 60; // 1 hour
 async function clean() {
 	await prisma.accountSessions.deleteMany({
-		where: { expires: { lt: Date.now() } },
+		where: { expires: { lt: BigInt(Date.now()) } },
 	});
 	const now = Date.now();
 	for (const [sid, session] of sessionStore) {
